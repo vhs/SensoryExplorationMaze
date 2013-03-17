@@ -2,6 +2,9 @@
  * Vancouver Maker Faire 2013
  * 
  */
+
+#include <Servo.h> 
+
  
  class CSEM 
  {
@@ -13,7 +16,7 @@
      int m_greenLedPin ; 
      int m_blueLedPin ; 
      
-     int m_servoPin ; 
+     Servo m_servo ; 
 
      int   ReadInputs();    
      void  WriteOutputRGB( int value ); 
@@ -33,7 +36,7 @@ void CSEM::SetUp( int echo, int trig, int redLed, int greenLed, int blueLed, int
   this->m_greenLedPin = greenLed ; 
   this->m_blueLedPin  = blueLed ; 
   
-  this->m_servoPin = servoPin ; 
+  this->m_servo.attach( servoPin ) ; 
 
   // Set up the serial 
   Serial.begin (9600);
@@ -99,16 +102,19 @@ void CSEM::WriteOutputRGB( int value ) {
   } else if( value > 20 && value <= 50  ) {
     Serial.println(" green ");    
   }
-  
 }
  
 
 void CSEM::Loop() {
   int ret = this->ReadInputs() ; 
   this->WriteOutputRGB( ret ); 
+
+  int servo = ret;
+  if (servo == 0) // out of range
+    servo = 180;
+  this->m_servo.write(90 - map(servo, 0, 180, 0, 90));
   
-  
-  delay( 500 ); 
+  delay( 50 ); 
 }
 
 
@@ -121,7 +127,7 @@ void CSEM::Loop() {
 #define greenPin  10
 #define bluePin    9
 
-#define servoPin   8
+#define servoPin   14
 
 
 CSEM g_SDM; 
